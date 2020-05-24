@@ -2,13 +2,20 @@
  * Created by PanJiaChen on 16/11/18.
  */
 
+export function parseTime(time) {
+  if (arguments.length === 0) {
+    return null
+  }
+  return time.replace('T', '')
+}
+
 /**
  * Parse the time to string
  * @param {(Object|string|number)} time
  * @param {string} cFormat
  * @returns {string | null}
  */
-export function parseTime(time, cFormat) {
+export function parseTime2(time, cFormat) {
   if (arguments.length === 0) {
     return null
   }

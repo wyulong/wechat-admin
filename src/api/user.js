@@ -30,3 +30,29 @@ export function logout() {
     method: 'post'
   })
 }
+
+
+
+export function fetchList(data) {
+  return request({
+    url: '/user/admin/list',
+    method: 'post',
+    data
+  })
+}
+
+export function editData(data) {
+  return request({
+    url: '/user/admin/edit',
+    method: 'post',
+    data
+  })
+}
+
+export function deleteDate(data) {
+  return request({
+    url: '/user/admin/delete',
+    method: 'post',
+    data
+  })
+}

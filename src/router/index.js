@@ -65,13 +65,13 @@ export const constantRoutes = [
       {
         path: 'education',
         name: 'Education',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/education/index'),
         meta: { title: '教育服务', icon: 'table' }
       },
       {
         path: 'traffic',
         name: 'Traffic',
-        component: () => import('@/views/tree/index'),
+        component: () => import('@/views/traffic/index'),
         meta: { title: '交通服务', icon: 'tree' }
       },
       {
@@ -92,19 +92,19 @@ export const constantRoutes = [
       {
         path: 'poor',
         name: 'Poor',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/poorFamily/index'),
         meta: { title: '困难家庭', icon: 'table' }
       },
       {
         path: 'graduate',
         name: 'Graduate',
-        component: () => import('@/views/tree/index'),
+        component: () => import('@/views/graduate/index'),
         meta: { title: '毕业生', icon: 'tree' }
       },
       {
         path: 'disability',
         name: 'Disability',
-        component: () => import('@/views/tree/index'),
+        component: () => import('@/views/disability/index'),
         meta: { title: '残疾人士', icon: 'tree' }
       }
     ]
@@ -160,7 +160,7 @@ export const constantRoutes = [
       {
         path: 'user',
         name: 'User',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/user/index'),
         meta: { title: '用户管理', icon: 'table' }
       },
       {
