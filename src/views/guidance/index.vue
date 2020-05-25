@@ -1,12 +1,15 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      用户类型
+      业务类型
       <el-select v-model="listQuery.type" placeholder="业务类型" clearable style="width: 120px" class="filter-item">
-        <el-option v-for="item in typeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
+        <el-option v-for="item in statusOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
+      </el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
+        新增
       </el-button>
     </div>
 
@@ -19,42 +22,22 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column label="用户编号" prop="id" align="center" width="100">
+      <el-table-column label="指南编号" prop="id" align="center" width="100">
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="用户类型" class-name="status-col" width="100">
+      <el-table-column label="业务类型" width="150px" align="center">
         <template slot-scope="{row}">
-          <el-tag>
-            {{ row.userType | typeFilter }}
-          </el-tag>
+          <span>{{ row.type | statusFilter }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="用户名称" width="150px" align="center">
+      <el-table-column label="指南标题" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.name }}</span>
+          <span>{{ row.title }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="用户头像" width="150px" align="center">
-        <template slot-scope="{row}">
-          <div class="avatar-wrapper">
-            <img :src="row.headImg" class="user-avatar" height="40" width="40">
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="手机号码" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.phone }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="电子邮箱" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.email }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="上次登录" width="180px" align="center">
+      <el-table-column label="修改时间" width="180px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.updateTime }}</span>
         </template>
@@ -64,9 +47,9 @@
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
             修改
           </el-button>
-          <!--          <el-button size="mini" type="danger" @click="handleDelete(row,$index)">-->
-          <!--            删除-->
-          <!--          </el-button>-->
+          <el-button size="mini" type="danger" @click="handleDelete(row,$index)">
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -74,29 +57,27 @@
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="用户编号" prop="id">
+      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
+        <el-form-item v-if="dialogStatus === 'update'" label="业务编号" prop="id">
           <el-input v-model="temp.id" disabled />
         </el-form-item>
-        <el-form-item label="用户类型" prop="status">
-          <el-select v-model="temp.userType" disabled class="filter-item" placeholder="Please select">
-            <el-option v-for="item in dealTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
+
+        <el-form-item label="业务类型" prop="type">
+          <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
+            <el-option v-for="item in dealOptions" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
         </el-form-item>
-        <el-form-item label="手机号码" prop="phone">
-          <el-input v-model="temp.phone" :disabled="temp.userType !== 0" />
+
+        <el-form-item label="指南标题" prop="title">
+          <el-input v-model="temp.title" />
         </el-form-item>
 
-        <el-form-item label="用户名称" prop="name">
-          <el-input v-model="temp.name" />
+        <el-form-item label="指南内容" prop="content">
+          <el-input v-model="temp.content" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
         </el-form-item>
 
-        <el-form-item label="电子邮箱" prop="email">
-          <el-input v-model="temp.email" />
-        </el-form-item>
-
-        <el-form-item label="上次登录" prop="createTime">
-          <el-input v-model="temp.updateTime" disabled />
+        <el-form-item v-if="dialogStatus === 'update'" label="创建时间" prop="createTime">
+          <el-input v-model="temp.createTime" disabled />
         </el-form-item>
 
       </el-form>
@@ -104,7 +85,7 @@
         <el-button @click="dialogFormVisible = false">
           取消
         </el-button>
-        <el-button type="primary" @click="updateData()">
+        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
           提交
         </el-button>
       </div>
@@ -113,27 +94,23 @@
 </template>
 
 <script>
-import { fetchList, editData, deleteDate } from '@/api/user'
+import { fetchList, editData, deleteDate, addData, getData } from '@/api/guidance'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 export default {
-  name: 'User',
+  name: 'Disability',
   components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
-        0: '未处理',
-        1: '处理中',
-        2: '处理完成'
-      }
-      return statusMap[status]
-    },
-    typeFilter(status) {
-      const statusMap = {
-        0: '普通用户',
-        1: '管理员'
+        1: '教育',
+        2: '交通',
+        3: '社保',
+        4: '困难家庭',
+        5: '毕业生',
+        6: '残疾人士'
       }
       return statusMap[status]
     }
@@ -149,35 +126,35 @@ export default {
         limit: 20,
         type: -1
       },
-      typeOptions: [
-        { key: -1, display_name: '全部' },
-        { key: 0, display_name: '普通用户' },
-        { key: 1, display_name: '管理员' }
-      ],
-      dealTypeOptions: [
-        { key: -1, display_name: '全部' },
-        { key: 0, display_name: '普通用户' },
-        { key: 1, display_name: '管理员' }
-      ],
       statusOptions: [
         { key: -1, display_name: '全部' },
-        { key: 0, display_name: '未处理' },
-        { key: 1, display_name: '处理中' },
-        { key: 2, display_name: '处理完成' }
+        { key: 1, display_name: '教育' },
+        { key: 2, display_name: '交通' },
+        { key: 3, display_name: '社保' },
+        { key: 4, display_name: '困难家庭' },
+        { key: 5, display_name: '毕业生' },
+        { key: 6, display_name: '残疾人士' }
       ],
       dealOptions: [
-        { key: 0, display_name: '未处理' },
-        { key: 1, display_name: '处理中' },
-        { key: 2, display_name: '处理完成' }
+        { key: 1, display_name: '教育' },
+        { key: 2, display_name: '交通' },
+        { key: 3, display_name: '社保' },
+        { key: 4, display_name: '困难家庭' },
+        { key: 5, display_name: '毕业生' },
+        { key: 6, display_name: '残疾人士' }
       ],
       importanceOptions: [1, 2, 3],
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       showReviewer: false,
-      temp: {},
+      temp: {
+        id: undefined,
+        title: '',
+        status: 0
+      },
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
-        update: '编辑信息',
+        update: '编辑业务信息',
         create: '创建'
       },
       dialogPvVisible: false,
@@ -209,6 +186,41 @@ export default {
       this.listQuery.page = 1
       this.getList()
     },
+    resetTemp() {
+      this.temp = {
+        id: undefined,
+        importance: 1,
+        remark: '',
+        timestamp: new Date(),
+        title: '',
+        type: ''
+      }
+    },
+    handleCreate() {
+      this.resetTemp()
+      this.dialogStatus = 'create'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    createData() {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          this.temp.id = undefined
+          addData(this.temp).then(() => {
+            this.getList()
+            this.dialogFormVisible = false
+            this.$notify({
+              title: '处理成功',
+              message: '[' + this.temp.title + ']' + '新增成功',
+              type: 'success',
+              duration: 2000
+            })
+          })
+        }
+      })
+    },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
       this.temp.timestamp = new Date(this.temp.timestamp)
@@ -228,7 +240,7 @@ export default {
             this.dialogFormVisible = false
             this.$notify({
               title: '处理成功',
-              message: '[' + tempData.name + ']' + '处理成功',
+              message: '[' + tempData.title + ']' + '处理成功',
               type: 'success',
               duration: 2000
             })
@@ -243,7 +255,7 @@ export default {
         this.dialogFormVisible = false
         this.$notify({
           title: '删除成功',
-          message: '[' + row.name + ']' + '删除成功',
+          message: '[' + row.title + ']' + '删除成功',
           type: 'success',
           duration: 2000
         })

@@ -1,9 +1,9 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      用户类型
-      <el-select v-model="listQuery.type" placeholder="业务类型" clearable style="width: 120px" class="filter-item">
-        <el-option v-for="item in typeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
+      回复状态
+      <el-select v-model="listQuery.status" placeholder="" label="adfasdf" clearable style="width: 120px" class="filter-item">
+        <el-option v-for="item in statusOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
@@ -19,54 +19,41 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column label="用户编号" prop="id" align="center" width="100">
+      <el-table-column label="业务编号" prop="id" align="center" width="100">
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="用户类型" class-name="status-col" width="100">
+      <el-table-column label="用户" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.userId }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="投诉内容" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.title }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="投诉时间" width="180px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.createTime }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="业务状态" class-name="status-col" width="100">
         <template slot-scope="{row}">
           <el-tag>
-            {{ row.userType | typeFilter }}
+            {{ row.status | statusFilter }}
           </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="用户名称" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.name }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="用户头像" width="150px" align="center">
-        <template slot-scope="{row}">
-          <div class="avatar-wrapper">
-            <img :src="row.headImg" class="user-avatar" height="40" width="40">
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="手机号码" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.phone }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="电子邮箱" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.email }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="上次登录" width="180px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.updateTime }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            修改
+            业务处理
           </el-button>
-          <!--          <el-button size="mini" type="danger" @click="handleDelete(row,$index)">-->
-          <!--            删除-->
-          <!--          </el-button>-->
+          <el-button size="mini" type="danger" @click="handleDelete(row,$index)">
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -75,30 +62,34 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="用户编号" prop="id">
+        <el-form-item label="业务编号" prop="id">
           <el-input v-model="temp.id" disabled />
         </el-form-item>
-        <el-form-item label="用户类型" prop="status">
-          <el-select v-model="temp.userType" disabled class="filter-item" placeholder="Please select">
-            <el-option v-for="item in dealTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
+        <el-form-item label="用户" prop="userId">
+          <el-input v-model="temp.userId" disabled />
+        </el-form-item>
+
+        <el-form-item label="投诉内容" prop="title">
+          <el-input v-model="temp.title" disabled />
+        </el-form-item>
+
+        <el-form-item label="投诉详情" prop="content">
+          <el-input v-model="temp.content" disabled :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
+        </el-form-item>
+
+        <el-form-item label="投诉时间" prop="createTime">
+          <el-input v-model="temp.createTime" disabled />
+        </el-form-item>
+
+        <el-form-item label="回复状态" prop="status">
+          <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
+            <el-option v-for="item in dealOptions" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
         </el-form-item>
-        <el-form-item label="手机号码" prop="phone">
-          <el-input v-model="temp.phone" :disabled="temp.userType !== 0" />
-        </el-form-item>
 
-        <el-form-item label="用户名称" prop="name">
-          <el-input v-model="temp.name" />
+        <el-form-item label="回复信息" prop="reply">
+          <el-input v-model="temp.reply" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" />
         </el-form-item>
-
-        <el-form-item label="电子邮箱" prop="email">
-          <el-input v-model="temp.email" />
-        </el-form-item>
-
-        <el-form-item label="上次登录" prop="createTime">
-          <el-input v-model="temp.updateTime" disabled />
-        </el-form-item>
-
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">
@@ -113,27 +104,19 @@
 </template>
 
 <script>
-import { fetchList, editData, deleteDate } from '@/api/user'
+import { fetchList, editData, deleteDate } from '@/api/complainMessage'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 export default {
-  name: 'User',
+  name: 'ConsultMessage',
   components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
-        0: '未处理',
-        1: '处理中',
-        2: '处理完成'
-      }
-      return statusMap[status]
-    },
-    typeFilter(status) {
-      const statusMap = {
-        0: '普通用户',
-        1: '管理员'
+        0: '未回复',
+        1: '已回复'
       }
       return statusMap[status]
     }
@@ -147,37 +130,33 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        type: -1
+        status: -1
       },
-      typeOptions: [
-        { key: -1, display_name: '全部' },
-        { key: 0, display_name: '普通用户' },
-        { key: 1, display_name: '管理员' }
-      ],
-      dealTypeOptions: [
-        { key: -1, display_name: '全部' },
-        { key: 0, display_name: '普通用户' },
-        { key: 1, display_name: '管理员' }
-      ],
       statusOptions: [
         { key: -1, display_name: '全部' },
-        { key: 0, display_name: '未处理' },
-        { key: 1, display_name: '处理中' },
-        { key: 2, display_name: '处理完成' }
+        { key: 0, display_name: '未回复' },
+        { key: 1, display_name: '已回复' }
       ],
       dealOptions: [
-        { key: 0, display_name: '未处理' },
-        { key: 1, display_name: '处理中' },
-        { key: 2, display_name: '处理完成' }
+        { key: 0, display_name: '未回复' },
+        { key: 1, display_name: '已回复' }
       ],
       importanceOptions: [1, 2, 3],
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       showReviewer: false,
-      temp: {},
+      temp: {
+        id: undefined,
+        importance: 1,
+        remark: '',
+        timestamp: new Date(),
+        title: '',
+        type: '',
+        status: 0
+      },
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
-        update: '编辑信息',
+        update: '编辑业务信息',
         create: '创建'
       },
       dialogPvVisible: false,
@@ -228,7 +207,7 @@ export default {
             this.dialogFormVisible = false
             this.$notify({
               title: '处理成功',
-              message: '[' + tempData.name + ']' + '处理成功',
+              message: '[' + tempData.title + ']' + '处理成功',
               type: 'success',
               duration: 2000
             })
@@ -243,7 +222,7 @@ export default {
         this.dialogFormVisible = false
         this.$notify({
           title: '删除成功',
-          message: '[' + row.name + ']' + '删除成功',
+          message: '[' + row.title + ']' + '删除成功',
           type: 'success',
           duration: 2000
         })

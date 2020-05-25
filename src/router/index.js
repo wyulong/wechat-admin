@@ -77,7 +77,7 @@ export const constantRoutes = [
       {
         path: 'security',
         name: 'Security',
-        component: () => import('@/views/tree/index'),
+        component: () => import('@/views/insurance/index'),
         meta: { title: '社保服务', icon: 'tree' }
       }
     ]
@@ -119,13 +119,13 @@ export const constantRoutes = [
       {
         path: 'customer',
         name: 'Customer',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/consultMessage/index'),
         meta: { title: '客服中心', icon: 'table' }
       },
       {
         path: 'complain',
         name: 'Complain',
-        component: () => import('@/views/tree/index'),
+        component: () => import('@/views/complainMessage/index'),
         meta: { title: '投诉中心', icon: 'tree' }
       }
     ]
@@ -140,13 +140,13 @@ export const constantRoutes = [
       {
         path: 'guide',
         name: 'Guide',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/guidance/index'),
         meta: { title: '办事指南', icon: 'table' }
       },
       {
         path: 'government',
         name: 'Government',
-        component: () => import('@/views/tree/index'),
+        component: () => import('@/views/notice/index'),
         meta: { title: '政务公开', icon: 'tree' }
       }
     ]

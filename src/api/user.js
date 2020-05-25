@@ -31,8 +31,6 @@ export function logout() {
   })
 }
 
-
-
 export function fetchList(data) {
   return request({
     url: '/user/admin/list',
